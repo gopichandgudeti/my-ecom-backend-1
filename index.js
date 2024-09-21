@@ -1,36 +1,35 @@
-const express = require('express')
-const cors = require('cors');
-const {open} = require('sqlite')
-const sqlite3 = require('sqlite3')
-const path = require('path')
+const express = require("express");
+const cors = require("cors")
+const path = require("path");
 
-const databasePath = path.join(__dirname, 'ecom.db')
+const { open } = require("sqlite");
+const sqlite3 = require("sqlite3");
+const app = express();
 
-const app = express()
+const dbPath = path.join(__dirname, "goodreads.db");
 
-app.use(cors());
 app.use(express.json())
+app.use(cors());
 
-let database = null
+let db = null;
 
-const initializeDbAndServer = async () => {
+const initializeDBAndServer = async () => {
   try {
-    database = await open({
-      filename: databasePath,
+    db = await open({
+      filename: dbPath,
       driver: sqlite3.Database,
-    })
-
-    const port = process.env.PORT || 3000
-    app.listen(port, () =>
-      console.log(`Server Running at http://localhost:${port}/`),
-    )
-  } catch (error) {
-    console.log(`DB Error: ${error.message}`)
-    process.exit(1)
+    });
+    app.listen(3000, () => {
+      console.log("Server Running at http://localhost:3000/");
+    });
+  } catch (e) {
+    console.log(`DB Error: ${e.message}`);
+    process.exit(1);
   }
-}
+};
 
-initializeDbAndServer()
+initializeDBAndServer();
+
 
 app.get('/products/', async (request, response) => {
   const getProductsQuery = `
@@ -39,7 +38,7 @@ app.get('/products/', async (request, response) => {
     FROM
       products;`
   const products = await database.all(getProductsQuery) 
-  response.json(products)
+  response.send(products)
 });
 
 
